@@ -1,5 +1,6 @@
 import pygame
 # hello
+# web git
 pygame.init()
 win = pygame.display.set_mode((500,500)) # задаем окно
 pygame.display.set_caption("Game")
