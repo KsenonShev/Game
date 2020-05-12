@@ -1,5 +1,5 @@
 import pygame
-
+# hello
 pygame.init()
 win = pygame.display.set_mode((500,500)) # задаем окно
 pygame.display.set_caption("Game")
@@ -27,6 +27,7 @@ left = False
 right = False
 animCount = 0
 
+
 def drawWindow():
 	global animCount
 	win.blit(bg,(0,0)) # фон
@@ -42,8 +43,8 @@ def drawWindow():
 		animCount += 1
 	else:
 		win.blit(playerStand, (x,y))
-	#pygame.draw.rect(win, (0,0,255), (x, y, widht, height)) # рисуем кубик
 	pygame.display.update()
+
 
 run = True
 while run:
