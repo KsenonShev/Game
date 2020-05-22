@@ -1,91 +1,57 @@
 import pygame
-# hello
-# web git
-pygame.init()
-win = pygame.display.set_mode((500,500)) # задаем окно
-pygame.display.set_caption("Game")
 
-walkRight = [pygame.image.load('right_1.png'), pygame.image.load('right_2.png'), pygame.image.load('right_3.png'), pygame.image.load('right_4.png'), pygame.image.load('right_5.png'), pygame.image.load('right_6.png')]
+# размеры
+win_width = 1600  # ширина окна программы в пикселях
+win_height = 900  # высота
 
-walkLeft = [pygame.image.load('left_1.png'), pygame.image.load('left_2.png'), pygame.image.load('left_3.png'), pygame.image.load('left_4.png'), pygame.image.load('left_5.png'), pygame.image.load('left_6.png')]
+# поле
+board_column = 10  # столбцов
+board_line = 10  # строк
+size_rect = 64  # площадб квадратов на поле
 
+# Количество места по бокам доски до края окна
+x_otstup = int((win_width - size_rect * board_column) / 2)
+y_otstup = int((win_height - size_rect * board_line) / 2)
+
+# картинки
 bg = pygame.image.load('bg.jpg')
-playerStand = pygame.image.load('idle.png')
-
 
 clock = pygame.time.Clock()
-x = 50
-y = 430
-widht = 60
 
-height = 71
-speed = 20
+def main():
+    global win, board_rect
+    pygame.init()
+    win = pygame.display.set_mode((0, 0), pygame.RESIZABLE)  # cоздание окна
+    pygame.display.set_caption('Три в ряд')  # название окна
+    win.blit(bg, (0, 0))
 
-isJump = False
-jumpCount = 10
+    board_rect = []
 
-left = False
-right = False
-animCount = 0
+    for x in range(board_column):
+        board_rect.append([])
+        for y in range(board_line):
+            r = pygame.Rect((x_otstup + (x * size_rect),
+                             y_otstup + (y * size_rect),
+                             size_rect,
+                             size_rect))
+            board_rect[x].append(r)
 
 
-def drawWindow():
-	global animCount
-	win.blit(bg,(0,0)) # фон
-
-	if animCount + 1 >= 30:
-		animCount = 0
-
-	if left:
-		win.blit(walkLeft[animCount // 5], (x,y))
-		animCount += 1
-	elif right:
-		win.blit(walkRight[animCount // 5], (x,y))
-		animCount += 1
-	else:
-		win.blit(playerStand, (x,y))
-	pygame.display.update()
+def drawBoard():
+    for x in range(board_column):
+        for y in range(board_line):
+            pygame.draw.rect(win, (0, 0, 255), board_rect[x][y], 1)
+    pygame.display.update()
 
 
 run = True
 while run:
-	clock.tick(30)
+    main()
+    drawBoard()
 
-	pygame.time.delay(50)
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
 
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			run = False
-
-	keys = pygame.key.get_pressed()
-	if keys[pygame.K_LEFT] and x > 20:
-		x -= speed
-		left = True
-		right = False
-	elif keys[pygame.K_RIGHT] and x < 500 - widht - 20:
-		x += speed
-		left = False
-		right = True
-	else:
-		left = False
-		right = False
-		animCount = 0
-
-	if not(isJump):
-		if keys[pygame.K_SPACE]:
-			isJump = True
-
-	else:
-		if jumpCount >= -10:
-			if jumpCount < 0:
-				y += (jumpCount ** 2) / 2
-			else:
-				y -= (jumpCount ** 2) / 2
-			jumpCount -= 1
-		else:
-			isJump = False
-			jumpCount = 10
-
-	drawWindow()
 
 pygame.quit()
