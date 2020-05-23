@@ -1,4 +1,6 @@
-import pygame, random
+import pygame
+import copy
+import random
 
 # размеры
 win_width = 1600  # ширина окна программы в пикселях
@@ -25,14 +27,14 @@ def main():
     win = pygame.display.set_mode((0, 0), pygame.RESIZABLE)  # cоздание окна
     pygame.display.set_caption('Три в ряд')  # название окна
 
-    # загрузка фотографий(глянуть расширенный вариант)
+    # загрузка фотографий
     img = []
     for i in range(1, 7):
-        gemImage = pygame.image.load('%s.png' % i)
-        if gemImage.get_size() != (size_rect, size_rect):
-            gemImage = pygame.transform.smoothscale(gemImage, (size_rect, size_rect))  # плавно масштабировать поверхность до произвольного размера
-        img.append(gemImage)
-        print(img)
+        gem_image = pygame.image.load('%s.png' % i)
+        if gem_image.get_size() != (size_rect, size_rect):
+            # плавно масштабировать поверхность до произвольного размера
+            gem_image = pygame.transform.smoothscale(gem_image, (size_rect, size_rect))
+        img.append(gem_image)
 
     board_rect = []
     for x in range(board_column):
@@ -49,9 +51,11 @@ def main():
 
 
 def run():
-    win.blit(bg, (0, 0))
-    gameBoard = getBlankBoard()
-    drawBoard(gameBoard)
+    win.blit(bg, (0, 0))  # фон
+    game_board = get_blank_board()  # получаем структуру поля, список в списке, с указателем -1
+    board = get_slots(game_board)  # указываем расположение наших 6-ти камней
+    draw_board(board)  # рисуем камни
+
     pygame.display.update()
 
     while True:
@@ -60,23 +64,53 @@ def run():
                 pygame.quit()
 
 
-def getBlankBoard():
+def get_blank_board():
     # Создать и вернуть пустую структуру данных доски.
     board = []
     for x in range(board_column):
         board.append([-1] * board_line)
-    print(board)
     return board
 
 
-def drawBoard(board):
+def get_slots(board):  # указываем расположение наших 6-ти камней
+    board_copy = copy.deepcopy(board)
+
+    drop_slots = []
+    for i in range(board_column):
+        drop_slots.append([])
+
+    # подсчитать количество пустых мест в каждом столбце на доске
+    for x in range(board_column):
+        for y in range(board_line - 1, -1, -1):
+            if board_copy[x][y] == -1:
+                index_img = list(range(len(img)))  # [0,1,2,3,4,5]
+                for offsetX, offsetY in ((0, -1), (1, 0), (0, 1), (-1, 0)):
+                    gem = get_gem_at(board_copy, x + offsetX, y + offsetY)  # возвращает указаный камень
+                    if gem is not None and gem in index_img:
+                        index_img.remove(gem)
+
+                new_gem = random.choice(index_img)
+                board_copy[x][y] = new_gem
+                drop_slots[x].append(new_gem)
+    print(drop_slots)
+    return drop_slots
+
+
+def get_gem_at(board, x, y):  # возвращает указаный камень
+    if x < 0 or y < 0 or x >= board_column or y >= board_line:
+        return None
+    else:
+        return board[x][y]
+
+
+def draw_board(board):
+    print(board)
     for x in range(board_column):
         for y in range(board_line):
             pygame.draw.rect(win, (255, 255, 255), board_rect[x][y], 1)
-            gemToDraw = board[x][y]
-            if gemToDraw == -1:
-                i = random.randrange(0, 6)
-                win.blit(img[i], board_rect[x][y])
+            gem_to_draw = board[x][y]
+            if gem_to_draw != -1:
+                win.blit(img[gem_to_draw], board_rect[x][y])
     # pygame.display.update()
 
 
