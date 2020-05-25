@@ -1,7 +1,8 @@
 import pygame
 import copy
 import random
-import time, sys
+import time
+import sys
 
 FPS = 30  # кадров в секунду для обновления экрана
 # размеры
