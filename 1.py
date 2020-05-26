@@ -7,8 +7,8 @@ global click_continue_text_rect
 
 FPS = 30  # кадров в секунду для обновления экрана
 # размеры
-win_width = 1300  # ширина окна программы в пикселях
-win_height = 800  # высота
+win_width = 1600  # ширина окна программы в пикселях
+win_height = 900  # высота
 
 # поле
 board_column = 10  # столбцов
@@ -34,19 +34,18 @@ def main():
     global win, board_rect, img, this_clock, button
     pygame.init()
     this_clock = pygame.time.Clock()
-    win = pygame.display.set_mode((win_width, win_height))  # создание окна
+    win = pygame.display.set_mode((win_width, win_height), pygame.RESIZABLE)  # создание окна
     pygame.display.set_caption('Три в ряд')  # название окна
 
     win.blit(bg, (0, 0))  # фон
     font = pygame.font.Font('19343.ttf', 150)
     text = font.render("Три в ряд", True, (169, 9, 80))
-    win.blit(text, [350, 200])
-    button = pygame.Rect(530, 350, 300, 100)
+    win.blit(text, [460, 200])
+    button = pygame.Rect(0, 0, 1600, 900)
     font1 = pygame.font.Font('appetite-italic.ttf', 70)
     text1 = font1.render("Начать", True, (219, 112, 147))
-    win.blit(text1, [530, 350])
+    win.blit(text1, [630, 350])
     pygame.display.update()
-    # pygame.display.flip()
 
     # загрузка фотографий
     img = []
@@ -57,6 +56,7 @@ def main():
             gem_image = pygame.transform.smoothscale(gem_image, (size_rect, size_rect))
         img.append(gem_image)
 
+    # координаты квадратов
     board_rect = []
     for x in range(board_column):  # рисуем квадраты
         board_rect.append([])
@@ -73,19 +73,17 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                #this_pos = event.pos  # gets mouse position
-                if button.collidepoint(event.pos):
+                mouse_down_x, mouse_down_y = event.pos
+                if button.collidepoint(mouse_down_x, mouse_down_y):
                     run()
 
-        # pygame.display.update()
-        # После отрисовки всего, переворачиваем экран
-        # pygame.display.flip()
+
 # -1
 def run():
     global click_continue_text_rect
     game_board = get_blank_board()  # получаем структуру поля, список в списке, с указателем -1
     score = 0
-    fill_board_and_animate(game_board, [], score)
+    fill_board_and_animate(game_board, [], score)  # рисует начальное поле
 
     # инициализировать переменные для начала новой игры
     first_selected_gem = None
@@ -104,7 +102,7 @@ def run():
                 pygame.quit()
                 sys.exit()
 
-            elif event.type == pygame.KEYUP and event.key == pygame.K_BACKSPACE:
+            elif event.type == pygame.KEYUP and event.key == pygame.K_BACKSPACE:  # обновляет игру, если нажат backspace
                 # KEYUP - кнопка не нажата, K_BACKSPACE
                 return  # начать новую игру
 
@@ -116,7 +114,7 @@ def run():
                     return  # после окончания игры нажмите, чтобы начать новую игру
 
                 if event.pos == (last_mouse_down_x, last_mouse_down_y):
-                    # Это событие - щелчок мышью, а не конец перетаскивания мышью
+                    # коорднаты нажатия мыши, и проверям, попали ли на камень, и возвращаем его номер в структуре
                     clicked_space = check_for_gem_click(event.pos)
                 else:
                     # это конец перетаскивания мышью
@@ -193,8 +191,6 @@ def run():
             highlight_space(first_selected_gem['x'], first_selected_gem['y'])
         if game_is_over:
             if click_continue_text_surf is None:
-                # Only render the text once. In future iterations, just
-                # use the Surface object already in clickContinueTextSurf
                 this_font = pygame.font.Font('appetite-italic.ttf', 36)  # шрифт
                 click_continue_text_surf = this_font.render('Конец игры. Итоговый счет: %s (Нажмите, чтобы начать '
                                                             'заново)' % score, 1, (196, 51, 254), (255, 255, 255))
@@ -214,7 +210,6 @@ def highlight_space(x, y):
 # 0
 def fill_board_and_animate(board, points, score):
     drop_slots = get_slots(board)  # указываем расположение наших камней
-    print('drop_slots', drop_slots)
     while drop_slots != [[]] * board_column:
         # делать анимацию выпадения, пока есть еще драгоценные камни
         moving_gems = get_dropping_gems(board)
@@ -222,12 +217,10 @@ def fill_board_and_animate(board, points, score):
             if len(drop_slots[x]) != 0:
                 # заставить самый низкий драгоценный камень в каждом слоте начать движение в направлении вниз
                 moving_gems.append({'imageNum': drop_slots[x][0], 'x': x, 'y': row_above_board, 'direction': DOWN})
-        print('2 moving', moving_gems)
 
         board_copy = get_board_copy_minus_gems(board, moving_gems)  # делает пустыми все строки
         animate_moving_gems(board_copy, moving_gems, points, score)  # рисует строку
         move_gems(board, moving_gems)  # вернет список где указаны, какой камень, в какой клетке
-        print(board)
 
         # удаляет самый нижний ряд
         for x in range(len(drop_slots)):
@@ -252,7 +245,6 @@ def get_slots(board):  # указываем расположение наших 
     drop_slots = []
     for i in range(board_column):
         drop_slots.append([])
-    print(drop_slots)
 
     # соседи не совпадают
     for x in range(board_column):
@@ -287,7 +279,6 @@ def draw_board(board):
             gem_to_draw = board[x][y]
             if gem_to_draw != -1:
                 win.blit(img[gem_to_draw], board_rect[x][y])
-    # pygame.display.update()
 
 
 # 5
@@ -324,7 +315,6 @@ def animate_moving_gems(board, moving_gems, points_text, score):
         for gem in moving_gems:
             draw_moving_gem(gem, progress)  # Нарисует каждый драгоценный камень, который будет падать
         draw_score(score)  # счет
-        print(points_text)
         for pointText in points_text:
             this_font = pygame.font.Font('appetite-italic.ttf', 36)  # шрифт
             points_surf = this_font.render(str(pointText['points']), 1, (200, 200, 200))
