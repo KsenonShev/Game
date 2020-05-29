@@ -1,18 +1,17 @@
 import pygame
 import copy
 import random
-import sys
 global win, board_rect, img, this_clock, button
 global click_continue_text_rect
 
 FPS = 30  # кадров в секунду для обновления экрана
 # размеры
 win_width = 1600  # ширина окна программы в пикселях
-win_height = 900  # высота
+win_height = 850  # высота
 
 # поле
 board_column = 10  # столбцов
-board_line = 10  # строк
+board_line = 9  # строк
 size_rect = 70  # ширина и высота
 
 # Количество места по бокам доски до края окна
@@ -39,12 +38,13 @@ def main():
 
     win.blit(bg, (0, 0))  # фон
     font = pygame.font.Font('19343.ttf', 150)
+
     text = font.render("Три в ряд", True, (169, 9, 80))
     win.blit(text, [460, 200])
     button = pygame.Rect(0, 0, 1600, 900)
     font1 = pygame.font.Font('appetite-italic.ttf', 70)
-    text1 = font1.render("Начать", True, (219, 112, 147))
-    win.blit(text1, [630, 350])
+    text1 = font1.render("Начать", True, (42, 0, 70))
+    win.blit(text1, [630, 400])
     pygame.display.update()
 
     # загрузка фотографий
@@ -58,7 +58,7 @@ def main():
 
     # координаты квадратов
     board_rect = []
-    for x in range(board_column):  # рисуем квадраты
+    for x in range(board_column):
         board_rect.append([])
         for y in range(board_line):
             r = pygame.Rect((x_otstup + (x * size_rect),  # rect(x,y, ширина,высота)
@@ -71,7 +71,6 @@ def main():
         for event in pygame.event.get():  # цикл обработки событий
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                 pygame.quit()
-                sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_down_x, mouse_down_y = event.pos
                 if button.collidepoint(mouse_down_x, mouse_down_y):
@@ -100,7 +99,6 @@ def run():
         for event in pygame.event.get():  # цикл обработки событий
             if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
                 pygame.quit()
-                sys.exit()
 
             elif event.type == pygame.KEYUP and event.key == pygame.K_BACKSPACE:  # обновляет игру, если нажат backspace
                 # KEYUP - кнопка не нажата, K_BACKSPACE
@@ -148,7 +146,7 @@ def run():
             matched_gems = find_matching_gems(game_board)
 
             if not matched_gems:
-                if score > 10:
+                if score >= 10:
                     score -= 10
                 # Не было совпадающих камней, вернуть все обратно
                 animate_moving_gems(board_copy, [first_swapping_gem, second_swapping_gem], [], score)
@@ -204,7 +202,7 @@ def run():
 
 # 15
 def highlight_space(x, y):
-    pygame.draw.rect(win, (0, 0, 0), board_rect[x][y], 4)  # рисует границу
+    pygame.draw.rect(win, (128, 0, 128), board_rect[x][y], 4)  # рисует границу
 
 
 # 0
