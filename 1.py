@@ -1,8 +1,6 @@
 import pygame
 import copy
 import random
-global win, board_rect, img, this_clock, button
-global click_continue_text_rect
 
 FPS = 30  # кадров в секунду для обновления экрана
 # размеры
@@ -29,57 +27,45 @@ RIGHT = 'right'
 row_above_board = 'row above board'  # произвольное нецелое значение
 
 
-def main():
-    global win, board_rect, img, this_clock, button
-    pygame.init()
-    this_clock = pygame.time.Clock()
-    win = pygame.display.set_mode((win_width, win_height), pygame.RESIZABLE)  # создание окна
-    pygame.display.set_caption('Три в ряд')  # название окна
+pygame.init()
+this_clock = pygame.time.Clock()
+win = pygame.display.set_mode((win_width, win_height), pygame.RESIZABLE)  # создание окна
+pygame.display.set_caption('Три в ряд')  # название окна
 
-    win.blit(bg, (0, 0))  # фон
-    font = pygame.font.Font('19343.ttf', 150)
+win.blit(bg, (0, 0))  # фон
+font = pygame.font.Font('19343.ttf', 150)
 
-    text = font.render("Три в ряд", True, (169, 9, 80))
-    win.blit(text, [460, 200])
-    button = pygame.Rect(0, 0, 1600, 900)
-    font1 = pygame.font.Font('appetite-italic.ttf', 70)
-    text1 = font1.render("Начать", True, (42, 0, 70))
-    win.blit(text1, [630, 400])
-    pygame.display.update()
+text = font.render("Три в ряд", True, (169, 9, 80))
+win.blit(text, [460, 200])
+button = pygame.Rect(0, 0, 1600, 900)
+font1 = pygame.font.Font('appetite-italic.ttf', 70)
+text1 = font1.render("Начать", True, (42, 0, 70))
+win.blit(text1, [630, 400])
+pygame.display.update()
 
-    # загрузка фотографий
-    img = []
-    for i in range(1, 7):
-        gem_image = pygame.image.load('%s.png' % i)
-        if gem_image.get_size() != (size_rect, size_rect):
-            # плавно масштабировать поверхность до произвольного размера
-            gem_image = pygame.transform.smoothscale(gem_image, (size_rect, size_rect))
-        img.append(gem_image)
+# загрузка фотографий
+img = []
+for i in range(1, 7):
+    gem_image = pygame.image.load('%s.png' % i)
+    if gem_image.get_size() != (size_rect, size_rect):
+        # плавно масштабировать поверхность до произвольного размера
+        gem_image = pygame.transform.smoothscale(gem_image, (size_rect, size_rect))
+    img.append(gem_image)
 
-    # координаты квадратов
-    board_rect = []
-    for x in range(board_column):
-        board_rect.append([])
-        for y in range(board_line):
-            r = pygame.Rect((x_otstup + (x * size_rect),  # rect(x,y, ширина,высота)
-                             y_otstup + (y * size_rect),
-                             size_rect,
-                             size_rect))
-            board_rect[x].append(r)  # хранит коордиаты квадратов
-
-    while True:
-        for event in pygame.event.get():  # цикл обработки событий
-            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
-                pygame.quit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_down_x, mouse_down_y = event.pos
-                if button.collidepoint(mouse_down_x, mouse_down_y):
-                    run()
+# координаты квадратов
+board_rect = []
+for x in range(board_column):
+    board_rect.append([])
+    for y in range(board_line):
+        r = pygame.Rect((x_otstup + (x * size_rect),  # rect(x,y, ширина,высота)
+                         y_otstup + (y * size_rect),
+                         size_rect,
+                         size_rect))
+        board_rect[x].append(r)  # хранит коордиаты квадратов
 
 
 # -1
 def run():
-    global click_continue_text_rect
     game_board = get_blank_board()  # получаем структуру поля, список в списке, с указателем -1
     score = 0
     fill_board_and_animate(game_board, [], score)  # рисует начальное поле
@@ -90,6 +76,7 @@ def run():
     last_mouse_down_y = None
     game_is_over = False
     click_continue_text_surf = None
+    click_continue_text_rect = None
 
     pygame.event.clear()
     while True:  # основной игровой цикл
@@ -488,4 +475,11 @@ def can_make_move(board):
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        for event in pygame.event.get():  # цикл обработки событий
+            if event.type == pygame.QUIT or (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE):
+                pygame.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_down_x, mouse_down_y = event.pos
+                if button.collidepoint(mouse_down_x, mouse_down_y):
+                    run()
